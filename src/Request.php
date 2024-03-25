@@ -17,21 +17,14 @@
 
 namespace Okta\JwtVerifier;
 
-use Http\Client\Common\PluginClient;
-use Http\Client\HttpClient;
-use Http\Discovery\HttpClientDiscovery;
-use Http\Discovery\MessageFactoryDiscovery;
-use Http\Discovery\UriFactoryDiscovery;
-use Http\Message\MessageFactory;
-use Http\Message\UriFactory;
+use GuzzleHttp\Client;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
 class Request
 {
-    protected $httpClient;
-    protected $uriFactory;
-    protected $messageFactory;
+    protected $client;
 
     /**
      * The UriInterface of the request to be made.
@@ -47,22 +40,14 @@ class Request
      */
     protected $query = [];
 
-    public function __construct(
-        HttpClient $httpClient = null,
-        UriFactory $uriFactory = null,
-        MessageFactory $messageFactory = null
-    ) {
-        $this->httpClient = new PluginClient(
-            $httpClient ?: HttpClientDiscovery::find()
-        );
-
-        $this->uriFactory = $uriFactory ?: UriFactoryDiscovery::find();
-        $this->messageFactory = $messageFactory ?: MessageFactoryDiscovery::find();
+    public function __construct(ClientInterface $httpClient = null)
+    {
+        $this->client = $httpClient ?: new Client();
     }
 
     public function setUrl($url): Request
     {
-        $this->url = $this->uriFactory->createUri($url);
+        $this->url = $url;
         return $this;
     }
 
@@ -80,15 +65,11 @@ class Request
 
     protected function request($method): ResponseInterface
     {
-        $headers = [];
-        $headers['Accept'] = 'application/json';
-
-        if (!empty($this->query)) {
-            $this->url = $this->url->withQuery(http_build_query($this->query));
-        }
-
-        $request = $this->messageFactory->createRequest($method, $this->url, $headers);
-
-        return $this->httpClient->sendRequest($request);
+        return $this->client->request($method, $this->url, [
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+            'query'   => $this->query,
+        ]);
     }
 }

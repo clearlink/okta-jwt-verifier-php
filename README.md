@@ -1,31 +1,11 @@
-[<img src="https://aws1.discourse-cdn.com/standard14/uploads/oktadev/original/1X/0c6402653dfb70edc661d4976a43a46f33e5e919.png" align="right" width="256px"/>](https://devforum.okta.com/)
-[![Packagist](https://img.shields.io/packagist/v/okta/jwt-verifier.svg)](https://packagist.org/packages/okta/jwt-verifier)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Support](https://img.shields.io/badge/support-Developer%20Forum-blue.svg)](https://devforum.okta.com/)
-
-> NOTICE: We're excited about the acquisition of Auth0 to bring you better support in PHP. This repo will be placed into security patch only mode and we will not be adding any further features. If you are looking for an API that is not supported in this library, please call the API directly. Our documentation for the supported Management APIs are located here: https://developer.okta.com/docs/reference/core-okta-api/. Please reach out to the [DevForum](https://devforum.okta.com/) for any questions.
 
 
 # Okta JWT Verifier for PHP
 
-As a result of a successful authentication by [obtaining an authorization grant from a user](https://developer.okta.com/docs/api/resources/oauth2.html#obtain-an-authorization-grant-from-a-user) or using the Okta API, you will be
-provided with a signed JWT (`id_token` and/or `access_token`). A common use case for these access tokens is to use it
-inside of the Bearer authentication header to let your application know who the user is that is making the request. In
-order for you to know this use is valid, you will need to know how to validate the token against Okta. This guide gives
-you an example of how to do this using Okta's JWT Validation library for PHP.
+This is a fork and modification of the legacy php okta library.
 
-**This code does not work with the default authorization server. You must be using a [custom authorization server](https://github.com/okta/okta-jwt-verifier-php/issues/57). Please check if this is the case before using this code.**
+We've provided some improvements and simplifications for practical reasons.
 
-## Release status
-
-This library uses semantic versioning and follows Okta's [library version policy](https://developer.okta.com/code/library-versions/).
-
-| Version | Status                             |
-| ------- | ---------------------------------- |
-| 0.x     |  :warning: Beta Release (Retired)  |
-| 1.x     |  :heavy_check_mark: Release        |
-
-The latest release can always be found on the [releases page](https://github.com/okta/okta-jwt-verifier-php/releases).
 
 ## Installation
 The Okta JWT Verifier can be installed through composer.
@@ -61,7 +41,8 @@ To validate a JWT, you will need a few different items:
 ```php
 require_once("/vendor/autoload.php"); // This should be replaced with your path to your vendor/autoload.php file
 
-$jwtVerifier = (new \Okta\JwtVerifier\JwtVerifierBuilder())
+// prev way of making the builder:
+$jwtVerifier = (new builder here)
     ->setDiscovery(new \Okta\JwtVerifier\Discovery\Oauth) // This is not needed if using oauth.  The other option is `new \Okta\JwtVerifier\Discovery\OIDC`
     ->setAdaptor(new \Okta\JwtVerifier\Adaptors\FirebasePhpJwt)
     ->setAudience('api://default')
