@@ -114,11 +114,16 @@ class JwtVerifier
         return $this->adaptor->getKeys($this->jwksUri);
     }
 
-    public function verify($jwt)
+    public function decode(string $jwt): Jwt
     {
         $keys = $this->getKeys();
 
-        $decoded =  $this->adaptor->decode($jwt, $keys);
+        return $this->adaptor->decode($jwt, $keys);
+    }
+
+    public function verify(string $jwt): Jwt
+    {
+        $decoded = $this->decode($jwt);
 
         // This is hard coded to access token since this was the original functionality.
         $this->validateClaims($decoded->getClaims(), "access");
@@ -126,22 +131,18 @@ class JwtVerifier
         return $decoded;
     }
 
-    public function verifyIdToken($jwt)
+    public function verifyIdToken(string $jwt): Jwt
     {
-        $keys = $this->getKeys();
-
-        $decoded =  $this->adaptor->decode($jwt, $keys);
+        $decoded = $this->decode($jwt);
 
         $this->validateClaims($decoded->getClaims(), "id");
 
         return $decoded;
     }
 
-    public function verifyAccessToken($jwt)
+    public function verifyAccessToken(string $jwt): Jwt
     {
-        $keys = $this->getKeys();
-
-        $decoded =  $this->adaptor->decode($jwt, $keys);
+        $decoded = $this->decode($jwt);
 
         $this->validateClaims($decoded->getClaims(), "access");
 
