@@ -1,6 +1,7 @@
 {
     "name": "clearlink/jwt-verifier",
     "description": "A verifier library for working with Okta JWT's",
+    "version": "2.2.0",
     "type": "library",
     "license": "Apache-2.0",
     "authors": [
