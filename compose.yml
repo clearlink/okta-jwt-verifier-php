@@ -1,0 +1,14 @@
+volumes:
+  composer-cache:
+
+services:
+  verifier:
+    image: public.ecr.aws/cldevops/laravel:8.0
+    init: true
+    entrypoint: ''
+    volumes:
+      - ./:/app
+      - composer-cache:/root/.composer/cache
+    working_dir: /app
+    ports:
+      - "80"

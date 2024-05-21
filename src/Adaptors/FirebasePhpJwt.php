@@ -28,23 +28,11 @@ use UnexpectedValueException;
 
 class FirebasePhpJwt implements Adaptor
 {
-    /**
-     * @var Request
-     */
-    private $request;
-
-    /**
-     * Leeway in seconds
-     *
-     * @var int
-     */
-    private $leeway;
-
-    public function __construct(Request $request = null, int $leeway = 120, CacheInterface $cache = null)
+    public function __construct(protected ?Request $request = null, protected int $leeway = 120, private ?CacheInterface $cache = null)
     {
         $this->request = $request ?: new Request();
-        $this->leeway = $leeway ?: 120;
-        $this->cache = $cache ?: new \Illuminate\Cache\Repository(new ArrayStore(true));
+        $this->leeway  = $leeway ?: 120;
+        $this->cache   = $cache ?: new \Illuminate\Cache\Repository(new ArrayStore(true));
     }
 
     public function clearCache(string $jku)
@@ -74,7 +62,7 @@ class FirebasePhpJwt implements Adaptor
 
     public function decode($jwt, $keys): Jwt
     {
-        $keys = array_map(function ($key) {
+        $keys    = array_map(function ($key) {
             return new Key($key, 'RS256');
         }, $keys);
         $decoded = (array)FirebaseJWT::decode($jwt, $keys);
@@ -96,10 +84,12 @@ class FirebasePhpJwt implements Adaptor
         $keys = [];
         if (is_string($source)) {
             $source = json_decode($source, true);
-        } elseif (is_object($source)) {
+        }
+        elseif (is_object($source)) {
             if (property_exists($source, 'keys')) {
                 $source = (array)$source;
-            } else {
+            }
+            else {
                 $source = [$source];
             }
         }
@@ -112,14 +102,16 @@ class FirebasePhpJwt implements Adaptor
                 if (!is_string($k)) {
                     if (is_array($v) && isset($v['kid'])) {
                         $k = $v['kid'];
-                    } elseif (is_object($v) && property_exists($v, 'kid')) {
+                    }
+                    elseif (is_object($v) && property_exists($v, 'kid')) {
                         $k = $v->{'kid'};
                     }
                 }
                 try {
-                    $v = self::parseKey($v);
+                    $v        = self::parseKey($v);
                     $keys[$k] = $v;
-                } catch (UnexpectedValueException $e) {
+                }
+                catch (UnexpectedValueException $e) {
                     //Do nothing
                 }
             }
@@ -147,7 +139,7 @@ class FirebasePhpJwt implements Adaptor
                         throw new UnexpectedValueException('Failed to parse JWK: RSA private key is not supported');
                     }
 
-                    $pem = self::createPemFromModulusAndExponent($source['n'], $source['e']);
+                    $pem  = self::createPemFromModulusAndExponent($source['n'], $source['e']);
                     $pKey = openssl_pkey_get_public($pem);
                     if ($pKey !== false) {
                         return $pKey;
@@ -172,12 +164,12 @@ class FirebasePhpJwt implements Adaptor
      */
     private static function createPemFromModulusAndExponent($n, $e)
     {
-        $modulus = FirebaseJWT::urlsafeB64Decode($n);
+        $modulus        = FirebaseJWT::urlsafeB64Decode($n);
         $publicExponent = FirebaseJWT::urlsafeB64Decode($e);
 
 
         $components = array(
-            'modulus' => pack('Ca*a*', 2, self::encodeLength(strlen($modulus)), $modulus),
+            'modulus'        => pack('Ca*a*', 2, self::encodeLength(strlen($modulus)), $modulus),
             'publicExponent' => pack('Ca*a*', 2, self::encodeLength(strlen($publicExponent)), $publicExponent)
         );
 
@@ -191,7 +183,7 @@ class FirebasePhpJwt implements Adaptor
 
 
         // sequence(oid(1.2.840.113549.1.1.1), null)) = rsaEncryption.
-        $rsaOID = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
+        $rsaOID       = pack('H*', '300d06092a864886f70d0101010500'); // hex version of MA0GCSqGSIb3DQEBAQUA
         $RSAPublicKey = chr(0) . $RSAPublicKey;
         $RSAPublicKey = chr(3) . self::encodeLength(strlen($RSAPublicKey)) . $RSAPublicKey;
 
