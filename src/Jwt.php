@@ -19,6 +19,9 @@ namespace Okta\JwtVerifier;
 
 class Jwt
 {
+    protected string $jwt;
+    protected array $claims;
+
     public function __construct(
         string $jwt,
         array $claims
