@@ -17,7 +17,6 @@
 
 namespace Okta\JwtVerifier;
 
-use Carbon\Carbon;
 use Okta\JwtVerifier\Adaptors\Adaptor;
 use Okta\JwtVerifier\Adaptors\AutoDiscover;
 use Okta\JwtVerifier\Discovery\DiscoveryMethod;
